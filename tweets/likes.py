@@ -1,3 +1,5 @@
+from typing import Any
+
 from core.db_settings import execute_query, get_connection
 
 
@@ -49,3 +51,16 @@ def show_tweets_by_likes():
     rows = execute_query(query=query, fetch="all")
     for r in rows:
         print(f"{r[0]}. {r[1]} - {r[2]} likes")
+
+
+
+def get_liked_users(tweet_id: object) -> bool | None | Any:
+    query = """
+        SELECT u.username, l.created_at
+        FROM likes l
+        JOIN users u ON l.user_id = u.id
+        WHERE l.tweet_id = %s
+        ORDER BY l.created_at DESC
+    """
+    params = (tweet_id,)
+    return execute_query(query=query, params=params, fetch="all")

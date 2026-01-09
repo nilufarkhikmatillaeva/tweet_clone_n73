@@ -64,7 +64,7 @@ def show_main_menu() -> Callable:
         crud.add_tweet()
 
         # show all tweets function called
-    return show_all_tweets_menu()
+    return show_all_tweet_menu()
 
 def show_all_tweet_menu() -> Optional[Callable]:
     current_page = 1
@@ -96,6 +96,18 @@ def show_all_tweet_menu() -> Optional[Callable]:
         else:
             print("Invalid Number.")
 
+def my_tweet_menu() -> Optional[Callable]:
+    print(menus.my_tweet_menu)
+    option = input("Enter your option: ")
+    if option == "1":
+        crud.delete_tweets()
+    elif option == "2":
+        likes.get_liked_users()
+
+    elif option == "3":
+        return show_main_menu()
+
+    return None
 
 
 if __name__ == '__main__':
