@@ -27,4 +27,13 @@ likes = """
             created_at timestamp default current_timestamp
             )
             """
+codes = """
+        CREATE TABLE IF NOT EXISTS codes
+        (
+            id         BIGSERIAL PRIMARY KEY,
+            email      VARCHAR(255) NOT NULL UNIQUE,
+            code       VARCHAR(6),
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+        """
 
