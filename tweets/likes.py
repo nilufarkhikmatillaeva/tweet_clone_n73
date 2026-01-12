@@ -1,60 +1,74 @@
 from typing import Any
+from core.db_settings import execute_query
 
-from core.db_settings import execute_query, get_connection
-
-
-def like_tweet(user_id, tweet_id):
-    # Check if already liked
+def like_tweet(user_id: int, tweet_id: int) -> bool:
+    """
+    Like a tweet if not already liked.
+    Returns True if liked successfully, else False.
+    """
     query = "SELECT * FROM likes WHERE user_id = %s AND tweet_id = %s"
     params = (user_id, tweet_id)
     result = execute_query(query=query, params=params, fetch="one")
+
     if result:
         print("You already liked this tweet.")
         return False
 
-    # Insert new like
-    insert_query = "INSERT INTO likes (user_id, tweet_id) VALUES (%s, %s)"
-    insert_params = (user_id, tweet_id)
-    if execute_query(query=insert_query, params=insert_params):
+    query = "INSERT INTO likes (user_id, tweet_id) VALUES (%s, %s)"
+    params = (user_id, tweet_id)
+    if execute_query(query=query, params=params):
         print("Tweet liked successfully!")
         return True
+    print("Failed to like tweet.")
     return False
 
-def count_likes(tweet_id):
+
+def count_likes(tweet_id: int) -> int:
+    """
+    Count how many likes a tweet has.
+    Returns the number of likes.
+    """
     query = "SELECT COUNT(*) FROM likes WHERE tweet_id = %s"
     params = (tweet_id,)
     result = execute_query(query=query, params=params, fetch="one")
     return result[0] if result else 0
 
-from core.db_settings import execute_query
 
-def unlike_tweet(user_id, tweet_id):
+def unlike_tweet(user_id: int, tweet_id: int) -> bool:
+    """
+    Unlike a tweet if it was previously liked.
+    Returns True if unliked , else False.
+    """
     query = "DELETE FROM likes WHERE user_id = %s AND tweet_id = %s"
     params = (user_id, tweet_id)
     if execute_query(query=query, params=params):
         print("Tweet unliked!")
         return True
-    else:
-        print("Something went wrong.")
-        return False
+    print("Failed to unlike tweet.")
+    return False
 
-from core.db_settings import execute_query
 
-def show_tweets_by_likes():
+def show_tweets_by_likes(limit: int = 10, offset: int = 0) -> list[Any]:
+    """
+    Returns a list of (id, tweet, likes).
+    """
     query = """
         SELECT t.id, t.tweet, COUNT(l.id) AS likes
         FROM tweets t
         LEFT JOIN likes l ON t.id = l.tweet_id
         GROUP BY t.id
         ORDER BY likes DESC, t.id DESC
+        LIMIT %s OFFSET %s
     """
-    rows = execute_query(query=query, fetch="all")
-    for r in rows:
-        print(f"{r[0]}. {r[1]} - {r[2]} likes")
+    params = (limit, offset)
+    return execute_query(query=query, params=params, fetch="all")
 
 
-
-def get_liked_users(tweet_id: object) -> bool | None | Any:
+def get_liked_users(tweet_id: int) -> list[Any]:
+    """
+    Get all users who liked a specific tweet.
+    Returns a list of (username, created_at).
+    """
     query = """
         SELECT u.username, l.created_at
         FROM likes l

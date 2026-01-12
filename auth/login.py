@@ -23,6 +23,7 @@ def register() -> bool:
 
     if execute_query(query=query, params=params):
         code = generate_code(user_email=email)
+        print('1111111111111111')
         if send_email(
                 recipient_email=email, subject="Confirmation code",
                 body=f"This is your code: {code}"
